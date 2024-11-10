@@ -1,11 +1,12 @@
 import {
   GithubAuthProvider,
+  sendPasswordResetEmail,
   signInWithEmailAndPassword,
   signInWithPopup,
 } from "firebase/auth";
 import { Link } from "react-router-dom";
 import auth from "../firebaseINIT.JS";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { FaEye } from "react-icons/fa";
 import { FaEyeSlash } from "react-icons/fa";
 import { GoogleAuthProvider } from "firebase/auth";
@@ -14,6 +15,7 @@ const Login = () => {
   const [errrorMessage, setErrorMessage] = useState("");
   const [successUser, setSuccess] = useState(false);
   const [showPass, setShowPass] = useState(false);
+  const emailRef = useRef();
 
   const googleProvider = new GoogleAuthProvider();
 
@@ -33,7 +35,12 @@ const Login = () => {
     signInWithEmailAndPassword(auth, email, password)
       .then((result) => {
         console.log(result);
-        setSuccess(true);
+
+        if (!result.user.emailVerified) {
+          setErrorMessage("please verify your email address");
+        } else {
+          setSuccess(true);
+        }
       })
       .catch((error) => {
         console.log("ERROR", error);
@@ -63,6 +70,20 @@ const Login = () => {
         console.log(error);
         setErrorMessage(error.message);
       });
+  };
+
+  const handelForgetPassword = () => {
+    console.log("forget password", emailRef.current.value);
+
+    const email = emailRef.current.value;
+    if (!email) {
+      alert("please provied a valid email");
+    } else {
+      sendPasswordResetEmail(auth, email)
+      .then(()=>{
+        console.log("password email reset, please checked your email address")
+      })
+    }
   };
 
   return (
@@ -100,6 +121,7 @@ const Login = () => {
                 <span className="label-text">Email</span>
               </label>
               <input
+                ref={emailRef}
                 name="email"
                 type="email"
                 placeholder="email"
@@ -126,9 +148,12 @@ const Login = () => {
               </button>
               <div className="absolute right-4 top-14"></div>
               <label className="label">
-                <a href="#" className="label-text-alt link link-hover">
+                <Link
+                  onClick={handelForgetPassword}
+                  className="label-text-alt link link-hover"
+                >
                   Forgot password?
-                </a>
+                </Link>
               </label>
             </div>
 
@@ -138,7 +163,7 @@ const Login = () => {
           </form>
           <p className="py-4 text-center">
             if your new in this website ? please
-            <Link to="/createAccount">Sing up</Link>
+            <Link to="/createAccount"> Sing up</Link>
           </p>
         </div>
       </div>
