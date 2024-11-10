@@ -1,4 +1,8 @@
-import { signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
+import {
+  GithubAuthProvider,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+} from "firebase/auth";
 import { Link } from "react-router-dom";
 import auth from "../firebaseINIT.JS";
 import { useState } from "react";
@@ -13,11 +17,14 @@ const Login = () => {
 
   const googleProvider = new GoogleAuthProvider();
 
+  const githubProvider = new GithubAuthProvider();
+
   const handelLoginSubmit = (e) => {
     e.preventDefault();
     const email = e.target.email.value;
     const password = e.target.password.value;
-    console.log(email, password, name);
+
+    console.log(email, password);
 
     // reset state!
     setErrorMessage("");
@@ -33,17 +40,28 @@ const Login = () => {
         setErrorMessage(error.message);
       });
   };
-  const handelPassword = () => {
-    setShowPass(!showPass);
-  };
 
   const handelGoogleSubmit = () => {
     signInWithPopup(auth, googleProvider)
       .then((res) => {
         console.log(res);
+        setSuccess(res.user);
       })
       .catch((error) => {
         console.log(error);
+        setErrorMessage(error.message);
+      });
+  };
+
+  const handelGithubSubmit = () => {
+    signInWithPopup(auth, githubProvider)
+      .then((result) => {
+        console.log(result);
+        setSuccess(true);
+      })
+      .catch((error) => {
+        console.log(error);
+        setErrorMessage(error.message);
       });
   };
 
@@ -58,13 +76,20 @@ const Login = () => {
           {errrorMessage && <p className="text-red-500">{errrorMessage}</p>}
           {successUser && <p className="text-green-500">log in successfully</p>}
 
-          <div className="">
+          <div className="space-y-6">
             <button
               onClick={handelGoogleSubmit}
               className="w-full btn rounded-full
              border-green-400 text-green-500"
             >
               Sing In Google
+            </button>
+            <button
+              onClick={handelGithubSubmit}
+              className="w-full btn rounded-full
+             border-green-400 text-green-500"
+            >
+              Sing In Github
             </button>
           </div>
         </div>
@@ -95,7 +120,7 @@ const Login = () => {
               />
               <button
                 className="absolute right-8 top-14"
-                onClick={handelPassword}
+                onClick={() => setShowPass(!showPass)}
               >
                 {showPass ? <FaEye /> : <FaEyeSlash />}
               </button>
@@ -106,12 +131,13 @@ const Login = () => {
                 </a>
               </label>
             </div>
+
             <div className="form-control mt-6">
               <button className="btn btn-primary">Sing up</button>
             </div>
           </form>
           <p className="py-4 text-center">
-            if your new in this website ? please{" "}
+            if your new in this website ? please
             <Link to="/createAccount">Sing up</Link>
           </p>
         </div>

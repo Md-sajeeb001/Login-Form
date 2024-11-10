@@ -16,11 +16,25 @@ const CreateAccont = () => {
 
     const email = e.target.email.value;
     const password = e.target.password.value;
-    console.log( email, password);
+    const terms = e.target.checkbox.checked;
+    console.log(email, password, terms);
 
     // rest state
     setShowError("");
     setSuccess(false);
+
+    if (!terms) {
+      setShowError("please accept our terms and condition");
+      return;
+    }
+
+    const passwordValidation = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{6,}$/;
+    if (!passwordValidation.test(password)) {
+      setShowError(
+        "set password at least one uppercase one lowercase number pass will be 6 charecter"
+      );
+      return;
+    }
 
     createUserWithEmailAndPassword(auth, email, password)
       .then((res) => {
@@ -31,10 +45,6 @@ const CreateAccont = () => {
         console.log("ERROR", error.message);
         setShowError(error.message);
       });
-  };
-
-  const handelShowPassword = () => {
-    setShowPassword(!showPassword);
   };
 
   return (
@@ -73,23 +83,35 @@ const CreateAccont = () => {
                 className="input input-bordered"
                 required
               />
-              <div
-                onClick={handelShowPassword}
+              <button
+                onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-4 top-14"
               >
                 {showPassword ? <FaEye /> : <FaEyeSlash />}
-              </div>
+              </button>
               <label className="label">
                 <a href="#" className="label-text-alt link link-hover">
                   Forgot password?
                 </a>
               </label>
             </div>
+
+            <div className="form-control">
+              <label className="label justify-start gap-4 cursor-pointer">
+                <input type="checkbox" name="checkbox" className="checkbox" />
+                <span className="label-text">
+                  Accept out terms and condition
+                </span>
+              </label>
+            </div>
+
             <div className="form-control mt-6">
               <button className="btn btn-primary">Sing up</button>
             </div>
           </form>
-        <p className="py-4 text-center">Already Have an Account ? please <Link to="/Login">Log in</Link></p>
+          <p className="py-4 text-center">
+            Already Have an Account ? please <Link to="/Login">Log in</Link>
+          </p>
         </div>
       </div>
     </div>
